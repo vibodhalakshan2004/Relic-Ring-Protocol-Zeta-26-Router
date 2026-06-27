@@ -276,7 +276,11 @@ class Router:
                 }
             )
 
-        
+        if final_internal is not None:
+            internal_ms += final_internal["total_internal_ms"]
+            tower_ms += final_internal["tower_processing_ms"]
+            fiber_ms += final_internal["fiber_ms"]
+
         return {
             "status": "ok",
             "route": [planet_id for planet_id, _ in states],
