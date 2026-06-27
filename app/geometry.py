@@ -61,3 +61,24 @@ def void_distance_km(
     )
     return max(0.0, distance)
 
+
+def closest_tower_pair(
+    origin_towers: list[TowerPosition],
+    destination_towers: list[TowerPosition],
+) -> tuple[int, int, float]:
+    best: tuple[int, int, float] | None = None
+    for origin_tower in origin_towers:
+        for destination_tower in destination_towers:
+            distance = euclidean_distance(
+                (origin_tower.x_km, origin_tower.y_km),
+                (destination_tower.x_km, destination_tower.y_km),
+            )
+            if best is None or distance < best[2]:
+                best = (
+                    origin_tower.tower_index,
+                    destination_tower.tower_index,
+                    distance,
+                )
+    if best is None:
+        raise ValueError("cannot select closest tower pair without towers")
+    return best
