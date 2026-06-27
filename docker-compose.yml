@@ -1,0 +1,9 @@
+services:
+  relic-ring:
+    build: .
+    container_name: relic-ring-zeta26
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./universe-config.json:/app/universe-config.json:ro
+    restart: unless-stopped

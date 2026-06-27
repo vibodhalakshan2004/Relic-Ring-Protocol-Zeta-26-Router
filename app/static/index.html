@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Relic Ring Protocol</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --muted: #5d6673;
+      --line: #ccd4df;
+      --panel: #f7f9fb;
+      --paper: #ffffff;
+      --accent: #0f766e;
+      --route: #d97706;
+      --danger: #c2410c;
+      --blue: #2563eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: #eef2f6;
+    }
+    header {
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 20px;
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+    }
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+    main {
+      display: grid;
+      grid-template-columns: minmax(320px, 1fr) 420px;
+      min-height: calc(100vh - 57px);
+    }
+    .stage {
+      position: relative;
+      min-height: 520px;
+      background: #fbfcfe;
+      overflow: hidden;
+    }
+    svg {
+      width: 100%;
+      height: 100%;
+      min-height: calc(100vh - 57px);
+      display: block;
+    }
+    aside {
+      background: var(--paper);
+      border-left: 1px solid var(--line);
+      padding: 16px;
+      overflow: auto;
+    }
+    section {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    section:first-child { padding-top: 0; }
+    section:last-child { border-bottom: 0; }
+    h2 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+    label {
+      display: grid;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    select, input {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 10px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    button {
+      min-height: 36px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 8px 11px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: #fff;
+      color: var(--ink);
+      border-color: var(--line);
+    }
+    button.danger { background: var(--danger); }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: #e8f5f3;
+      color: #0f5f59;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .metric {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      padding: 6px 0;
+      font-size: 13px;
+      border-bottom: 1px dashed #dde3ea;
+    }
+    .metric:last-child { border-bottom: 0; }
+    .metric span:first-child { color: var(--muted); }
+    .hop {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: var(--panel);
+      font-size: 12px;
+    }
+    .hop strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    code {
+      display: block;
+      max-height: 72px;
+      overflow: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #fff;
+      border: 1px solid #e0e6ee;
+      border-radius: 6px;
+      padding: 6px;
+      margin-top: 6px;
+      color: #1f2937;
+    }
+    .planet-label {
+      font-size: 12px;
+      font-weight: 700;
+      paint-order: stroke;
+      stroke: #fff;
+      stroke-width: 4px;
+      stroke-linejoin: round;
+    }
+    .link {
+      stroke: #aab5c2;
+      stroke-width: 2;
+    }
+    .link.failed {
+      stroke: #7a8088;
+      stroke-dasharray: 7 6;
+      opacity: 0.55;
+    }
+    .link.route {
+      stroke: var(--route);
+      stroke-width: 5;
+      opacity: 0.9;
+    }
+    .planet {
+      fill: #dbeafe;
+      stroke: var(--blue);
+      stroke-width: 2;
+    }
+    .planet.failed {
+      fill: #fee2e2;
+      stroke: var(--danger);
+    }
+    .tower {
+      fill: #111827;
+      stroke: #fff;
+      stroke-width: 1;
+    }
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+      aside { border-left: 0; border-top: 1px solid var(--line); }
+      svg { min-height: 520px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Relic Ring Protocol - Zeta-26 Router</h1>
+    <span class="status" id="status">Loading</span>
+  </header>
+  <main>
+    <div class="stage">
+      <svg id="map" role="img" aria-label="Universe graph"></svg>
+    </div>
+    <aside>
+      <section>
+        <h2>Packet</h2>
+        <div class="row">
+          <label>Origin<select id="origin"></select></label>
+          <label>Destination<select id="destination"></select></label>
+        </div>
+        <label>Payload<input id="payload" value="Hello world"></label>
+        <div class="actions">
+          <button id="send">Send Packet</button>
+          <button class="secondary" id="routeOnly">Route Only</button>
+        </div>
+      </section>
+      <section>
+        <h2>Failures</h2>
+        <div class="row">
+          <label>Node<select id="failNode"></select></label>
+          <label>Link<select id="failLink"></select></label>
+        </div>
+        <div class="actions">
+          <button class="danger" id="killNode">Kill Node</button>
+          <button class="danger" id="killLink">Kill Link</button>
+          <button class="secondary" id="resetFailures">Reset</button>
+        </div>
+      </section>
+      <section>
+        <h2>Result</h2>
+        <div id="summary"></div>
+      </section>
+      <section>
+        <h2>Hop Log</h2>
+        <div id="hops"></div>
+      </section>
+    </aside>
+  </main>
+  <script>
+    const state = { graph: null, result: null };
+    const $ = (id) => document.getElementById(id);
+    const fmt = (value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 3 });
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, {
+        headers: { "Content-Type": "application/json" },
+        ...options
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text);
+      }
+      return response.json();
+    }
+
+    async function loadGraph() {
+      state.graph = await api("/universe/graph");
+      populateControls();
+      draw();
+      $("status").textContent = `${state.graph.metadata.system_name} ready`;
+    }
+
+    function populateControls() {
+      const planets = state.graph.planets.map((p) => p.id);
+      for (const id of ["origin", "destination", "failNode"]) {
+        const select = $(id);
+        const previous = select.value;
+        select.innerHTML = planets.map((p) => `<option value="${p}">${p}</option>`).join("");
+        if (previous && planets.includes(previous)) select.value = previous;
+      }
+      if (!$("destination").value || $("destination").value === $("origin").value) {
+        $("destination").value = planets[planets.length - 1];
+      }
+      $("failLink").innerHTML = state.graph.valid_links
+        .filter((link) => link.from_id < link.to_id)
+        .map((link) => `<option value="${link.from_id}|${link.to_id}">${link.from_id} -> ${link.to_id}</option>`)
+        .join("");
+    }
+
+    function project(point, bounds, width, height) {
+      const pad = 64;
+      const sx = (width - pad * 2) / Math.max(1, bounds.maxX - bounds.minX);
+      const sy = (height - pad * 2) / Math.max(1, bounds.maxY - bounds.minY);
+      const scale = Math.min(sx, sy);
+      return {
+        x: pad + (point.x - bounds.minX) * scale,
+        y: height - pad - (point.y - bounds.minY) * scale
+      };
+    }
+
+    function routeEdges() {
+      if (!state.result || !Array.isArray(state.result.route)) return new Set();
+      const edges = new Set();
+      for (let i = 0; i < state.result.route.length - 1; i++) {
+        edges.add(`${state.result.route[i]}|${state.result.route[i + 1]}`);
+        edges.add(`${state.result.route[i + 1]}|${state.result.route[i]}`);
+      }
+      return edges;
+    }
+
+    function draw() {
+      const svg = $("map");
+      const box = svg.getBoundingClientRect();
+      const width = Math.max(640, box.width || 900);
+      const height = Math.max(520, box.height || 620);
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      svg.innerHTML = "";
+      const planets = state.graph.planets;
+      const bounds = {
+        minX: Math.min(...planets.map((p) => p.center_x_km)),
+        maxX: Math.max(...planets.map((p) => p.center_x_km)),
+        minY: Math.min(...planets.map((p) => p.center_y_km)),
+        maxY: Math.max(...planets.map((p) => p.center_y_km))
+      };
+      const positions = new Map(planets.map((planet) => [
+        planet.id,
+        project({ x: planet.center_x_km, y: planet.center_y_km }, bounds, width, height)
+      ]));
+      const route = routeEdges();
+      for (const link of state.graph.valid_links.filter((item) => item.from_id < item.to_id)) {
+        const a = positions.get(link.from_id);
+        const b = positions.get(link.to_id);
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", a.x);
+        line.setAttribute("y1", a.y);
+        line.setAttribute("x2", b.x);
+        line.setAttribute("y2", b.y);
+        line.setAttribute("class", `link ${link.failed ? "failed" : ""} ${route.has(`${link.from_id}|${link.to_id}`) ? "route" : ""}`);
+        svg.appendChild(line);
+      }
+      for (const planet of planets) {
+        const p = positions.get(planet.id);
+        const radius = Math.max(18, Math.min(42, Math.sqrt(planet.radius_km) / 5));
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", p.x);
+        circle.setAttribute("cy", p.y);
+        circle.setAttribute("r", radius);
+        circle.setAttribute("class", `planet ${planet.failed ? "failed" : ""}`);
+        svg.appendChild(circle);
+        for (const tower of planet.towers) {
+          const angle = tower.theta_degrees * Math.PI / 180;
+          const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          dot.setAttribute("cx", p.x + Math.cos(angle) * (radius + 4));
+          dot.setAttribute("cy", p.y - Math.sin(angle) * (radius + 4));
+          dot.setAttribute("r", 3);
+          dot.setAttribute("class", "tower");
+          svg.appendChild(dot);
+        }
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.setAttribute("x", p.x);
+        label.setAttribute("y", p.y + radius + 18);
+        label.setAttribute("text-anchor", "middle");
+        label.setAttribute("class", "planet-label");
+        label.textContent = `${planet.id} b${planet.codex}`;
+        svg.appendChild(label);
+      }
+    }
+
+    function renderResult(result) {
+      state.result = result;
+      draw();
+      const status = result.status || "ok";
+      const route = result.route ? result.route.join(" -> ") : "No route";
+      $("summary").innerHTML = `
+        <div class="metric"><span>Status</span><strong>${status}</strong></div>
+        <div class="metric"><span>Route</span><strong>${route}</strong></div>
+        <div class="metric"><span>Total latency</span><strong>${fmt(result.total_latency_ms)} ms</strong></div>
+        <div class="metric"><span>Delivered</span><strong>${result.delivered_payload || ""}</strong></div>
+      `;
+      const hops = result.hop_log || [];
+      $("hops").innerHTML = hops.length ? hops.map((hop) => `
+        <div class="hop">
+          <strong>#${hop.hop_index} ${hop.from_planet} -> ${hop.to_planet}</strong>
+          <div>Towers ${hop.sending_tower} -> ${hop.receiving_tower}; codex ${hop.from_codex || ""} -> ${hop.to_codex || ""}</div>
+          <div>Internal ${fmt(hop.internal_routing.total_internal_ms)} ms; void ${fmt(hop.void_transmission.total_void_ms)} ms</div>
+          <div>Cumulative ${fmt(hop.cumulative_latency_ms)} ms</div>
+          <code>${hop.void_stream || ""}</code>
+        </div>
+      `).join("") : "<div class='metric'><span>No hops</span><strong></strong></div>";
+    }
+
+    async function sendPacket(routeOnly = false) {
+      const body = {
+        origin_id: $("origin").value,
+        destination_id: $("destination").value
+      };
+      if (!routeOnly) body.payload = $("payload").value;
+      const result = await api(routeOnly ? "/route" : "/packet/send", {
+        method: "POST",
+        body: JSON.stringify(body)
+      });
+      renderResult(result);
+    }
+
+    $("send").addEventListener("click", () => sendPacket(false).catch((error) => alert(error.message)));
+    $("routeOnly").addEventListener("click", () => sendPacket(true).catch((error) => alert(error.message)));
+    $("killNode").addEventListener("click", async () => {
+      await api("/failures/node", { method: "POST", body: JSON.stringify({ node_id: $("failNode").value }) });
+      await loadGraph();
+    });
+    $("killLink").addEventListener("click", async () => {
+      const [from_id, to_id] = $("failLink").value.split("|");
+      await api("/failures/link", { method: "POST", body: JSON.stringify({ from_id, to_id, bidirectional: true }) });
+      await loadGraph();
+    });
+    $("resetFailures").addEventListener("click", async () => {
+      await api("/failures/reset", { method: "POST" });
+      await loadGraph();
+    });
+    window.addEventListener("resize", () => state.graph && draw());
+    loadGraph().then(() => sendPacket(false)).catch((error) => {
+      $("status").textContent = "Error";
+      console.error(error);
+    });
+  </script>
