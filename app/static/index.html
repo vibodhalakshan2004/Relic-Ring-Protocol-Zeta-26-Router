@@ -210,3 +210,47 @@
     }
   </style>
 </head>
+<body>
+  <header>
+    <h1>Relic Ring Protocol - Zeta-26 Router</h1>
+    <span class="status" id="status">Loading</span>
+  </header>
+  <main>
+    <div class="stage">
+      <svg id="map" role="img" aria-label="Universe graph"></svg>
+    </div>
+    <aside>
+      <section>
+        <h2>Packet</h2>
+        <div class="row">
+          <label>Origin<select id="origin"></select></label>
+          <label>Destination<select id="destination"></select></label>
+        </div>
+        <label>Payload<input id="payload" value="Hello world"></label>
+        <div class="actions">
+          <button id="send">Send Packet</button>
+          <button class="secondary" id="routeOnly">Route Only</button>
+        </div>
+      </section>
+      <section>
+        <h2>Failures</h2>
+        <div class="row">
+          <label>Node<select id="failNode"></select></label>
+          <label>Link<select id="failLink"></select></label>
+        </div>
+        <div class="actions">
+          <button class="danger" id="killNode">Kill Node</button>
+          <button class="danger" id="killLink">Kill Link</button>
+          <button class="secondary" id="resetFailures">Reset</button>
+        </div>
+      </section>
+      <section>
+        <h2>Result</h2>
+        <div id="summary"></div>
+      </section>
+      <section>
+        <h2>Hop Log</h2>
+        <div id="hops"></div>
+      </section>
+    </aside>
+  </main>
