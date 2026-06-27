@@ -62,6 +62,23 @@ class UniverseGraph:
             void_latency=void_latency(origin, destination, distance, self.metadata),
         )
 
+    def require_planet(self, planet_id: str) -> PlanetNode:
+        try:
+            return self.nodes[planet_id]
+        except KeyError as exc:
+            raise ValueError(f"unknown planet: {planet_id}") from exc
+
+    def validate_tower(self, planet_id: str, tower_index: int) -> None:
+        planet = self.require_planet(planet_id)
+        if tower_index < 0 or tower_index >= planet.active_towers:
+            raise ValueError(
+                f"invalid tower {tower_index} for {planet_id}; "
+                f"expected 0..{planet.active_towers - 1}"
+            )
+
+    def neighbors(self, planet_id: str) -> list[str]:
+        return sorted(to_id for from_id, to_id in self.links if from_id == planet_id)
+
     def to_dict(
         self,
         failed_nodes: set[str] | None = None,
@@ -91,3 +108,25 @@ class UniverseGraph:
                 }
             )
 
+        links: list[dict[str, object]] = []
+        for key, link in sorted(self.links.items()):
+            link_data = link.to_dict()
+            link_data["failed"] = key in failed_links
+            link_data["active"] = (
+                link.from_id not in failed_nodes
+                and link.to_id not in failed_nodes
+                and key not in failed_links
+            )
+            links.append(link_data)
+
+        return {
+            "metadata": self.metadata.model_dump(),
+            "planets": planets,
+            "valid_links": links,
+            "invalid_links": self.invalid_links,
+            "failed_nodes": sorted(failed_nodes),
+            "failed_links": [
+                {"from_id": from_id, "to_id": to_id}
+                for from_id, to_id in sorted(failed_links)
+            ],
+        }
