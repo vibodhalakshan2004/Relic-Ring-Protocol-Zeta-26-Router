@@ -12,6 +12,10 @@ def scaled_center(planet: PlanetNode, metadata: UniverseMetadata) -> tuple[float
     )
 
 
+def euclidean_distance(a: tuple[float, float], b: tuple[float, float]) -> float:
+    return math.hypot(b[0] - a[0], b[1] - a[1])
+
+
 def tower_position(
     planet: PlanetNode,
     metadata: UniverseMetadata,
