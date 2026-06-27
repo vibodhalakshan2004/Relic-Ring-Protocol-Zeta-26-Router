@@ -61,3 +61,33 @@ class UniverseGraph:
             tower_distance_km=tower_distance,
             void_latency=void_latency(origin, destination, distance, self.metadata),
         )
+
+    def to_dict(
+        self,
+        failed_nodes: set[str] | None = None,
+        failed_links: set[tuple[str, str]] | None = None,
+    ) -> dict[str, object]:
+        failed_nodes = failed_nodes or set()
+        failed_links = failed_links or set()
+        planets: list[dict[str, object]] = []
+        for planet in self.nodes.values():
+            center_x, center_y = scaled_center(planet, self.metadata)
+            planets.append(
+                {
+                    "id": planet.id,
+                    "codex": planet.codex,
+                    "x": planet.x,
+                    "y": planet.y,
+                    "center_x_km": center_x,
+                    "center_y_km": center_y,
+                    "radius_km": planet.radius_km,
+                    "active_towers": planet.active_towers,
+                    "atmosphere_thickness_km": planet.atmosphere_thickness_km,
+                    "refraction_index": planet.refraction_index,
+                    "failed": planet.id in failed_nodes,
+                    "towers": [
+                        tower.to_dict() for tower in self.tower_positions[planet.id]
+                    ],
+                }
+            )
+
