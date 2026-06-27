@@ -134,3 +134,32 @@ class InternalLatencyBreakdown:
     tower_processing_ms: float
     total_internal_ms: float
 
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class VoidLatencyBreakdown:
+    origin_atmosphere_ms: float
+    destination_atmosphere_ms: float
+    void_space_ms: float
+    total_void_ms: float
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class LinkInfo:
+    from_id: str
+    to_id: str
+    void_distance_km: float
+    send_tower: int
+    receive_tower: int
+    tower_distance_km: float
+    void_latency: VoidLatencyBreakdown
+
+    def to_dict(self) -> dict[str, Any]:
+        data = asdict(self)
+        data["void_latency"] = self.void_latency.to_dict()
+        return data
