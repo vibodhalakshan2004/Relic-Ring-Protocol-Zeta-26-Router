@@ -31,3 +31,25 @@ def decimal_to_base(value: int, base: int) -> str:
         digits.append(DIGITS[remainder])
     return "".join(reversed(digits))
 
+
+def base_to_decimal(value_str: str, base: int) -> int:
+    validate_base(base)
+    value = 0
+    for char in value_str.upper():
+        digit = DIGITS.find(char)
+        if digit < 0 or digit >= base:
+            raise ValueError(f"invalid digit {char!r} for base {base}")
+        value = value * base + digit
+    return value
+
+
+def encode_payload_for_codex(values: list[int], codex: int) -> list[str]:
+    return [decimal_to_base(value, codex) for value in values]
+
+
+def decode_payload_from_codex(encoded_values: list[str], codex: int) -> list[int]:
+    decoded = [base_to_decimal(value, codex) for value in encoded_values]
+    for value in decoded:
+        if value < 0 or value > 255:
+            raise ValueError(f"decoded value {value} is not a byte")
+    return decoded
