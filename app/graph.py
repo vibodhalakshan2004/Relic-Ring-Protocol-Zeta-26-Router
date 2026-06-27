@@ -41,3 +41,23 @@ class UniverseGraph:
                             "reason": "exceeds max_void_hop_distance_km",
                         }
                     )
+
+    def _add_directed_link(
+        self,
+        origin: PlanetNode,
+        destination: PlanetNode,
+        distance: float,
+    ) -> None:
+        send_tower, receive_tower, tower_distance = closest_tower_pair(
+            self.tower_positions[origin.id],
+            self.tower_positions[destination.id],
+        )
+        self.links[(origin.id, destination.id)] = LinkInfo(
+            from_id=origin.id,
+            to_id=destination.id,
+            void_distance_km=distance,
+            send_tower=send_tower,
+            receive_tower=receive_tower,
+            tower_distance_km=tower_distance,
+            void_latency=void_latency(origin, destination, distance, self.metadata),
+        )
